@@ -31,7 +31,6 @@ define([
                 SourceCodeToggleCSS = SourceCodeToggle + '__css',
                 SourceCodeToggleHTML = SourceCodeToggle + '__html',
                 SourceCodeToggleJS = SourceCodeToggle + '__js',
-                SourceCodeToggleJSON = SourceCodeToggle + '__json',
 
                 SourceCodeToggleAll = 'source_source-code_toggle-all',
                 SourceCodeToggleAllHide = SourceCodeToggleAll + '__hide',
@@ -125,25 +124,25 @@ define([
                     var _this = $(this)
                         ,parent = _this.parent()
                         ,langClass='';
-                    if (parent.hasClass('src-css')) {
-                        langClass = SourceCodeToggleCSS;
-                    } else if (parent.hasClass('src-js')) {
-                        langClass = SourceCodeToggleJS;
-                    } else if (parent.hasClass('src-json')) {
-                        langClass = SourceCodeToggleJSON;
-                    } else {
-                        langClass = SourceCodeToggleHTML;
+                    if (!parent.hasClass('src-json')) {
+                        if (parent.hasClass('src-css')) {
+                            langClass = SourceCodeToggleCSS;
+                        } else if (parent.hasClass('src-js')) {
+                            langClass = SourceCodeToggleJS;
+                        } else {
+                            langClass = SourceCodeToggleHTML;
+                        }
+                        if (parent.hasClass('source_visible')) {
+                            parent.wrap('<div class="'+SourceCode+' '+SourceCodeStatic+'"><div class="' + SourceCodeCnt + '"></div></div>');
+                        }
+                        else if (!parent.hasClass('src-json')) {
+                            parent.wrap('<div class="'+SourceCode+'"><div class="' + SourceCodeCnt + '"></div></div>');
+                            _this.closest('.' + SourceCode).prepend('' +
+                                '<a href="" class="' + SourceCodeToggle + ' ' + langClass + '"><span class="source_hide">' + RES_HIDE_CODE + '</span><span class="source_show">' + RES_SHOW_CODE + '</span> ' + RES_CODE + '</a>' +
+                                '');
+                        }
+                        Prism.highlightElement(_this[0]);
                     }
-                    if (parent.hasClass('source_visible')) {
-                        parent.wrap('<div class="'+SourceCode+' '+SourceCodeStatic+'"><div class="' + SourceCodeCnt + '"></div></div>');
-                    }
-                    else {
-                        parent.wrap('<div class="'+SourceCode+'"><div class="' + SourceCodeCnt + '"></div></div>');
-                        _this.closest('.' + SourceCode).prepend('' +
-                            '<a href="" class="' + SourceCodeToggle + ' ' + langClass + '"><span class="source_hide">' + RES_HIDE_CODE + '</span><span class="source_show">' + RES_SHOW_CODE + '</span> ' + RES_CODE + '</a>' +
-                            '');
-                    }
-
                 });
             };
             var fillCodeContainers = function() {
@@ -151,7 +150,8 @@ define([
                 var selection = onlyStatic ? $('.source_section pre[class*="src-"].source_visible > code') : $('.source_section pre[class*="src-"] > code');
                 selection.each(function () {
                     var _this = $(this)
-                        ,HTMLcode;
+                      , HTMLcode
+                    ;
 
                     if (_this.html().trim().length === 0) {
                         HTMLcode = _this.parent().nextAll('.'+ options.exampleSectionClass ).html();
@@ -185,17 +185,10 @@ define([
 
             //Toggle show source sections
             var initCodePartToggler = function() {
-                $('.' + SourceCodeToggle).on({
-                    'click' : function (e) {
-                        e.preventDefault();
-                        var codeCnt = $(this).closest('.' + SourceCode);
-
-                        if (codeCnt.hasClass(SourceCodeMin)) { //If section minimized
-                            codeCnt.removeClass(SourceCodeMin);
-                        } else {
-                            codeCnt.addClass(SourceCodeMin);
-                        }
-                    }
+                $('.source_container').on('click', '.' + SourceCodeToggle, function (e) {
+                    e.preventDefault();
+                    var codeCnt = $(this).closest('.' + SourceCode);
+                    codeCnt.toggleClass(SourceCodeMin);
                 });
             };
 
@@ -204,8 +197,6 @@ define([
                 if (!prepared) {
                     fillCodeContainers();
                     prepareCodeBlocks();
-                    Prism.highlightAll();
-                    initCodePartToggler();
                     $('pre').removeAttr('style');
                     prepared = true;
                 }
@@ -220,8 +211,8 @@ define([
                 wrapTags();
                 fillCodeContainers();
                 prepareCodeBlocks();
+                initCodePartToggler();
                 onlyStatic = false;
-                Prism.highlightAll();
                 $('pre[class*="src-"] > code').addClass('__visible');
                 $('pre.source_visible').removeAttr('style');
             }

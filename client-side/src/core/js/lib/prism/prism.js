@@ -219,6 +219,7 @@
                     }
 
                     pattern.lastIndex = 0;
+
                     var match = pattern.exec(str);
 
                     if (match) {
@@ -241,10 +242,6 @@
 
                         var wrapped = new Token(token, inside? _.tokenize(match, inside) : match);
 
-                        console.log(wrapped);
-                        if (wrapped['type'] === 'new' || wrapped['type'] === 'old') {
-                            wrapped['content'] = wrapped['content'].replace(/{\/?(new|old)}/g, '');
-                        }
                         args.push(wrapped);
 
                         if (after) {
@@ -353,7 +350,8 @@
         }
     }
 
-})();;
+})();
+
 Prism.languages.html = {
     'comment': /&lt;!--[\w\W]*?-->/g,
     'prolog': /&lt;\?.+?\?>/,
@@ -410,12 +408,6 @@ Prism.languages.css = {
     'important': /\B!important\b/gi,
     'ignore': /&(lt|gt|amp);/gi,
     'punctuation': /[\{\};:]/g
-};
-
-Prism.languages.json = {
-    'old': /\{old\}[\w\W]*?\{\/old\}/ig,
-    'new': /\{new\}[\w\W]*?{\/new}/ig,
-    'json-property': /(\b|\B)[\w-]+(?=\s*:)/ig
 };
 
 if (Prism.languages.html) {
@@ -514,10 +506,10 @@ Prism.languages.insertBefore('bash', 'comment', {
 Prism.hooks.add('after-highlight', function (env) {
     // works only for <code> wrapped inside <pre data-line-numbers> (not inline)
     var pre = env.element.parentNode;
+
     if (!pre || !/pre/i.test(pre.nodeName)) {
         return;
     }
-
     var linesNum = (1 + env.code.split('\n').length);
     var lineNumbersWrapper;
 
@@ -534,4 +526,4 @@ Prism.hooks.add('after-highlight', function (env) {
 
     env.element.appendChild(lineNumbersWrapper);
 
-});;
+});
